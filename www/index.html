@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Génesis</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2076%2076'%3E%3Crect%20x='1'%20y='1'%20width='74'%20height='74'%20rx='19'%20fill='%235548ee'%20stroke='%23b9b3ff'%20stroke-width='2'/%3E%3Crect%20x='10'%20y='10'%20width='56'%20height='42'%20rx='15'%20fill='%23ffffff'/%3E%3Cpath%20d='M22%2050%20L17%2066%20L38%2050%20Z'%20fill='%23ffffff'/%3E%3Cpath%20d='M48%2022.6%20A13%2013%200%201%200%2051%2031%20L38%2031'%20fill='none'%20stroke='%235548ee'%20stroke-width='6.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0b1530">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Génesis">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* PALETA 2: Mostaza + azul tinta. Para probar otra, cambiar solo este bloque */
+    --ink:#0b1530;
+    --surface:#121f45;
+    --surface-2:#1a2b5c;
+    --line:#2c4080;
+    --paper:#fff8e7;
+    --paper-dim:#a9b6dd;
+    --dawn:#ffc93c;
+    --dawn-dim:#e0a41f;
+    --pink:#ff9f43;
+    --teal:#5b8def;
+    --danger:#ff5d6c;
+    --on-grad:#1a1200;
+    --glow:#1b2d66;
+    --nav-bg:rgba(11,21,48,0.92);
+    --grad:linear-gradient(135deg, var(--dawn), var(--pink)); /* solo para el título/logo */
+    --solid:var(--dawn); /* usado en botones, badges, elementos activos */
+  }
+  body{
+    background:radial-gradient(circle at 15% 0%, var(--glow) 0%, var(--ink) 55%);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{ font-family:'Bricolage Grotesque','Inter',sans-serif; letter-spacing:-0.02em; }
+
+  /* ---- Auth gate ---- */
+  #authScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .auth-card{
+    width:100%;
+    max-width:380px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-top:3px solid transparent;
+    border-image:var(--solid) 1;
+    border-radius:4px;
+    padding:40px 32px;
+  }
+  .auth-card h1{
+    font-size:2.4rem;
+    font-weight:600;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+    background:var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    display:inline-block;
+  }
+  .auth-card p.tag{
+    color:var(--paper-dim);
+    margin:0 0 28px;
+    font-size:0.92rem;
+  }
+  label{
+    display:block;
+    font-size:0.78rem;
+    color:var(--paper-dim);
+    margin:16px 0 6px;
+  }
+  input[type=text], input[type=password], textarea, select{
+    width:100%;
+    background:var(--ink);
+    border:1px solid var(--line);
+    color:var(--paper);
+    border-radius:3px;
+    padding:11px 12px;
+    font-family:'Inter',sans-serif;
+    font-size:0.95rem;
+  }
+  select{ appearance:none; }
+  input:focus, textarea:focus{
+    outline:2px solid var(--dawn);
+    outline-offset:1px;
+  }
+  button{
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    border:none;
+  }
+  .btn-primary{
+    width:100%;
+    background:var(--solid);
+    color:var(--on-grad);
+    font-weight:700;
+    padding:12px;
+    border-radius:3px;
+    margin-top:24px;
+    font-size:0.95rem;
+    transition:opacity .15s, transform .15s;
+  }
+  .btn-primary:hover{ opacity:0.9; }
+  .auth-switch{
+    text-align:center;
+    margin-top:18px;
+    font-size:0.85rem;
+    color:var(--paper-dim);
+  }
+  .auth-switch button{
+    background:none;
+    color:var(--teal);
+    font-weight:600;
+    padding:0;
+  }
+
+  /* ---- App shell ---- */
+  #app{ display:none; }
+  header.top{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px;
+    background:var(--nav-bg);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  header.top .brand{
+    font-size:1.3rem; font-weight:600; letter-spacing:-0.01em;
+    background:var(--solid);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  header.top .who{
+    display:flex; align-items:center; gap:10px;
+    font-size:0.85rem; color:var(--paper-dim);
+  }
+  .avatar{
+    width:32px; height:32px; border-radius:50%;
+    background:var(--solid);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:0.8rem; color:var(--on-grad);
+    flex-shrink:0;
+  }
+  .avatar.c2{ background:linear-gradient(135deg, var(--teal), #2f5fd0); color:#0a1230; }
+  .avatar.c3{ background:linear-gradient(135deg, #ffd166, var(--pink)); color:#3d1a20; }
+  .avatar{ overflow:hidden; }
+  .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+  #profileAvatar{ cursor:pointer; }
+  nav.tabs{
+    display:flex; gap:4px;
+    padding:10px 24px;
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    background:none; color:var(--paper-dim);
+    padding:8px 14px; border-radius:20px;
+    font-size:0.88rem; font-weight:500;
+    white-space:nowrap;
+  }
+  nav.tabs button.active{ background:var(--solid); color:var(--on-grad); font-weight:600; }
+
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:24px 16px 80px;
+  }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ---- Composer ---- */
+  .composer{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+  .composer textarea{
+    resize:none; min-height:64px; border:none; background:none; padding:4px 0;
+  }
+  .composer textarea:focus{ outline:none; }
+  .composer-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:8px; border-top:1px solid var(--line); padding-top:12px;
+  }
+  .file-btn{
+    background:none; color:var(--paper-dim);
+    font-size:0.82rem; display:flex; align-items:center; gap:6px;
+  }
+  .file-btn:hover{ color:var(--teal); }
+  .post-btn{
+    background:var(--solid); color:var(--on-grad); font-weight:700;
+    padding:8px 18px; border-radius:20px; font-size:0.85rem;
+  }
+  .post-btn:disabled{ background:var(--surface-2); color:var(--paper-dim); cursor:default; }
+  .preview-img{
+    max-width:100%; border-radius:3px; margin-top:10px; display:block;
+  }
+
+  /* ---- Post card ---- */
+  .post{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .post-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .post-head .name{ font-weight:600; font-size:0.92rem; }
+  .post-head .time{ font-size:0.76rem; color:var(--paper-dim); }
+  .post-body{ font-size:0.94rem; line-height:1.5; white-space:pre-wrap; }
+  .post-img{ width:100%; border-radius:3px; margin-top:10px; }
+  .post-actions{
+    display:flex; gap:20px; margin-top:12px;
+    border-top:1px solid var(--line); padding-top:10px;
+  }
+  .post-actions button{
+    background:none; color:var(--paper-dim); font-size:0.82rem;
+    display:flex; align-items:center; gap:6px;
+  }
+  .post-actions button.liked{ color:var(--pink); font-weight:600; }
+
+  /* ---- Profile ---- */
+  .profile-head{
+    display:flex; gap:16px; align-items:center; margin-bottom:14px;
+  }
+  .profile-head .avatar{ width:64px; height:64px; font-size:1.3rem; }
+  .profile-head h2{ margin:0 0 4px; font-size:1.4rem; }
+  .profile-head p{ margin:0; color:var(--paper-dim); font-size:0.88rem; }
+  .category-badge{
+    display:inline-block;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--teal);
+    font-size:0.76rem; font-weight:600;
+    padding:4px 12px; border-radius:20px;
+    margin-bottom:12px;
+  }
+  .profile-bio{
+    font-size:0.92rem; color:var(--paper); line-height:1.5;
+    margin:0 0 12px;
+  }
+  .profile-link-row{
+    display:flex; gap:8px; margin-bottom:18px;
+  }
+  .profile-link-row input{
+    flex:1;
+  }
+  .profile-link-row button{
+    flex-shrink:0; padding:0 18px;
+  }
+  .stat-row{ display:flex; gap:18px; flex-wrap:wrap; font-size:0.85rem; padding-bottom:4px; }
+  .stat-row b{ color:var(--paper); }
+  .stat-row span{ color:var(--paper-dim); }
+  #hideLikesToggle:checked ~ #hideLikesTrack{ background:var(--solid); border-color:transparent; }
+  #hideLikesToggle:checked ~ #hideLikesDot{ transform:translateX(18px); background:var(--on-grad); }
+  .filter-chip{ flex-shrink:0; white-space:nowrap; }
+
+  /* ---- Suggested people ---- */
+  .people-list{ display:flex; flex-direction:column; gap:10px; }
+  .person-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:4px; padding:12px 14px;
+  }
+  .person-row .info{ flex:1; }
+  .person-row .name{ font-weight:600; font-size:0.9rem; }
+  .person-row .bio{ font-size:0.78rem; color:var(--paper-dim); }
+  .follow-btn{
+    background:var(--surface-2); color:var(--paper);
+    border:1px solid var(--line); padding:7px 16px;
+    border-radius:20px; font-size:0.8rem; font-weight:500;
+  }
+  .follow-btn{ transition:background .15s, color .15s, border-color .15s; }
+  .follow-btn:not(.following):hover{ background:var(--solid); color:var(--on-grad); border-color:transparent; }
+  .follow-btn.following{ background:none; color:var(--teal); border-color:var(--teal); }
+
+  .section-title{
+    font-size:0.78rem; text-transform:none; color:var(--paper-dim);
+    margin:0 0 12px; letter-spacing:0.02em;
+  }
+  .empty{
+    text-align:center; padding:40px 20px; color:var(--paper-dim); font-size:0.9rem;
+  }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
+  .legal-note{ margin:16px 0 0; text-align:center; font-size:0.76rem; line-height:1.5; color:var(--paper-dim); }
+  .legal-note a{ color:var(--dawn); text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="auth-card">
+    <svg width="56" height="56" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Génesis" style="margin-bottom:10px;"><rect x="1" y="1" width="74" height="74" rx="19" fill="#5548ee" stroke="#b9b3ff" stroke-width="2"/><rect x="10" y="10" width="56" height="42" rx="15" fill="#ffffff"/><path d="M22 50 L17 66 L38 50 Z" fill="#ffffff"/><path d="M48 22.6 A13 13 0 1 0 51 31 L38 31" fill="none" stroke="#5548ee" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Génesis</h1>
+    <p class="tag" id="authTag">Creá tu cuenta para empezar.</p>
+    <p id="authError" style="display:none;color:var(--danger);font-size:0.85rem;margin:0 0 14px;"></p>
+    <div id="nameField">
+      <label>Nombre</label>
+      <input type="text" id="regName" placeholder="Tu nombre">
+    </div>
+    <div id="emailField">
+      <label>Email</label>
+      <input type="text" id="regEmail" placeholder="tu@email.com">
+    </div>
+    <div id="userField">
+      <label>Usuario</label>
+      <input type="text" id="regUser" placeholder="@usuario">
+    </div>
+    <div id="creatorFields">
+      <label>¿Qué tipo de contenido creás?</label>
+      <select id="regCategory">
+        <option value="Fotografía">Fotografía</option>
+        <option value="Video">Video</option>
+        <option value="Música">Música</option>
+        <option value="Arte e ilustración">Arte e ilustración</option>
+        <option value="Emprendimiento">Emprendimiento</option>
+        <option value="Educación">Educación</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+    <label>Contraseña</label>
+    <input type="password" id="regPass" placeholder="••••••••">
+    <button class="btn-primary" id="authSubmit">Crear cuenta</button>
+    <div class="auth-switch">
+      <span id="authSwitchText">¿Ya tenés cuenta?</span>
+      <button id="authSwitchBtn">Iniciá sesión</button>
+    </div>
+    <p class="legal-note">Al usar Génesis confirmás que sos mayor de 18 años y aceptás los <a href="https://checho0516.github.io/genesis/terminos.html" target="_blank" rel="noopener">Términos de uso</a> y la <a href="https://checho0516.github.io/genesis/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="top">
+    <div class="brand-wrap" style="display:flex;align-items:center;gap:8px;">
+      <svg width="30" height="30" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Génesis"><rect x="1" y="1" width="74" height="74" rx="19" fill="#5548ee" stroke="#b9b3ff" stroke-width="2"/><rect x="10" y="10" width="56" height="42" rx="15" fill="#ffffff"/><path d="M22 50 L17 66 L38 50 Z" fill="#ffffff"/><path d="M48 22.6 A13 13 0 1 0 51 31 L38 31" fill="none" stroke="#5548ee" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="brand">Génesis</div>
+    </div>
+    <div class="who">
+      <div style="position:relative;">
+        <button id="notifBtn" style="background:none;border:none;cursor:pointer;font-size:1.15rem;padding:4px;color:var(--paper);">
+          🔔<span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:#d81159;color:#fff;font-size:0.62rem;font-weight:700;border-radius:50%;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 3px;border:1px solid rgba(0,0,0,0.25);">0</span>
+        </button>
+      </div>
+      <span id="whoName"></span>
+      <div class="avatar" id="whoAvatar"></div>
+    </div>
+  </header>
+  <div id="notifPanel" style="display:none;position:fixed;top:60px;right:16px;width:280px;max-height:360px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px;z-index:50;"></div>
+  <nav class="tabs">
+    <button data-view="inicio" class="active">Inicio</button>
+    <button data-view="explorar">Explorar</button>
+    <button data-view="mensajes">Mensajes</button>
+    <button data-view="comunidades">Comunidades</button>
+    <button data-view="perfil">Mi perfil</button>
+  </nav>
+
+  <main>
+    <!-- INICIO -->
+    <section class="view active" id="view-inicio">
+      <div class="composer">
+        <textarea id="postText" placeholder="¿Qué querés compartir?"></textarea>
+        <img id="postPreview" class="preview-img" style="display:none;">
+        <div id="filterRow" style="display:none;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:2px;">
+          <button class="filter-chip follow-btn following" data-filter="none">Original</button>
+          <button class="filter-chip follow-btn" data-filter="grayscale(1)">Blanco y negro</button>
+          <button class="filter-chip follow-btn" data-filter="brightness(1.25)">Brillo</button>
+          <button class="filter-chip follow-btn" data-filter="contrast(1.35)">Contraste</button>
+          <button class="filter-chip follow-btn" data-filter="sepia(0.35) saturate(1.2)">Cálido</button>
+          <button class="filter-chip follow-btn" data-filter="hue-rotate(180deg) saturate(1.1)">Frío</button>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--paper-dim);margin-top:10px;cursor:pointer;">
+          <input type="checkbox" id="exclusiveCheck" style="width:auto;">
+          🔒 Contenido exclusivo (solo para quienes te apoyan)
+        </label>
+        <div class="composer-row">
+          <button class="file-btn" id="attachBtn">📷 Agregar foto</button>
+          <input type="file" id="fileInput" accept="image/*" style="display:none;">
+          <button class="post-btn" id="submitPost" disabled>Publicar</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button id="feedModeForYou" class="follow-btn following" style="padding:6px 14px;">Para vos</button>
+        <button id="feedModeRecent" class="follow-btn" style="padding:6px 14px;">Más reciente</button>
+      </div>
+      <div id="feed"></div>
+    </section>
+    <section class="view" id="view-explorar">
+      <p class="section-title">Personas para seguir</p>
+      <div class="people-list" id="peopleList"></div>
+    </section>
+
+    <!-- MENSAJES -->
+    <section class="view" id="view-mensajes">
+      <p class="section-title">Conversaciones</p>
+      <div class="people-list" id="conversationList"></div>
+      <div id="chatBox" style="display:none;">
+        <button id="backToConversations" style="background:none;color:var(--paper-dim);font-size:0.85rem;margin-bottom:12px;">&larr; Volver</button>
+        <div id="chatWithName" style="font-weight:600;margin-bottom:10px;"></div>
+        <div id="chatMessages" style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;margin-bottom:14px;"></div>
+        <div class="composer">
+          <textarea id="chatInput" placeholder="Escribí un mensaje..." style="min-height:44px;"></textarea>
+          <div class="composer-row">
+            <span></span>
+            <button id="sendChatBtn" class="post-btn">Enviar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMUNIDADES -->
+    <section class="view" id="view-comunidades">
+      <div id="communitiesListView">
+        <div class="composer" style="margin-bottom:16px;">
+          <input type="text" id="newCommunityName" placeholder="Nombre de la comunidad" style="margin-bottom:8px;">
+          <textarea id="newCommunityDesc" placeholder="¿De qué se trata?" style="min-height:50px;"></textarea>
+          <div class="composer-row">
+            <span></span>
+            <button id="createCommunityBtn" class="post-btn">Crear comunidad</button>
+          </div>
+        </div>
+        <p class="section-title">Comunidades</p>
+        <div id="communitiesList" class="people-list"></div>
+      </div>
+      <div id="communityDetail" style="display:none;">
+        <button id="backToCommunities" style="background:none;color:var(--paper-dim);font-size:0.85rem;margin-bottom:12px;">&larr; Volver</button>
+        <h2 id="communityDetailName" class="serif" style="margin:0 0 4px;font-size:1.3rem;"></h2>
+        <p id="communityDetailDesc" style="color:var(--paper-dim);font-size:0.88rem;margin:0 0 10px;"></p>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <span id="communityMemberCount" style="font-size:0.85rem;color:var(--paper-dim);"></span>
+          <button id="joinCommunityBtn" class="follow-btn">Unirme</button>
+        </div>
+        <div class="composer" style="margin-bottom:16px;">
+          <textarea id="communityPostText" placeholder="Compartí algo con la comunidad..." style="min-height:50px;"></textarea>
+          <div class="composer-row">
+            <span></span>
+            <button id="submitCommunityPost" class="post-btn">Publicar</button>
+          </div>
+        </div>
+        <div id="communityPostsList"></div>
+      </div>
+    </section>
+
+    <!-- PERFIL -->
+    <section class="view" id="view-perfil">
+      <div class="profile-head">
+        <div class="avatar" id="profileAvatar" style="width:64px;height:64px;font-size:1.3rem;"></div>
+        <div>
+          <h2 id="profileName"></h2>
+          <p id="profileUser"></p>
+          <button id="changePhotoBtn" class="follow-btn" style="margin-top:8px;">📷 Cambiar foto</button>
+          <input type="file" id="avatarInput" accept="image/*" style="display:none">
+        </div>
+      </div>
+      <span class="category-badge" id="profileCategory"></span>
+      <p class="profile-bio" id="profileBio"></p>
+      <div class="profile-link-row">
+        <input type="text" id="profileLinkInput" placeholder="Agregá el link a tu web, tienda o red">
+        <button id="saveLinkBtn" class="follow-btn">Guardar</button>
+      </div>
+      <div class="stat-row">
+        <span><b id="statPosts">0</b> publicaciones</span>
+        <span><b id="statFollowers">0</b> seguidores</span>
+        <span><b id="statFollowing">0</b> siguiendo</span>
+        <span><b id="statLikes">0</b> interacciones</span>
+        <span><b id="statSupporters">0</b> te apoyan</span>
+      </div>
+      <div id="topPostBox" style="display:none;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:14px;">
+        <div class="section-title" style="margin:0 0 6px;">Tu publicación más popular</div>
+        <div id="topPostText" style="font-size:0.85rem;"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:16px;">
+        <div>
+          <div style="font-size:0.88rem;font-weight:600;">Ocultar contador de "me gusta"</div>
+          <div style="font-size:0.78rem;color:var(--paper-dim);">Tus publicaciones no van a mostrar el número de me gusta a nadie.</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;margin-left:12px;">
+          <input type="checkbox" id="hideLikesToggle" style="opacity:0;width:0;height:0;">
+          <span id="hideLikesTrack" style="position:absolute;inset:0;background:var(--surface-2);border:1px solid var(--line);border-radius:24px;transition:.15s;cursor:pointer;"></span>
+          <span id="hideLikesDot" style="position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--paper-dim);border-radius:50%;transition:.15s;"></span>
+        </label>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:16px;">
+        <div style="font-size:0.88rem;font-weight:600;">Color de tu app</div>
+        <div style="font-size:0.78rem;color:var(--paper-dim);margin-bottom:12px;">Elegí la paleta que más te guste. Se guarda en tu cuenta.</div>
+        <div id="themePicker" style="display:flex;flex-wrap:wrap;gap:14px;"></div>
+      </div>
+      <p class="section-title" style="margin-top:24px;">Tu portafolio</p>
+      <div id="myPosts"></div>
+    </section>
+  </main>
+</div>
+<div id="wellbeingBanner" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;max-width:400px;margin:0 auto;background:var(--surface);border:1px solid var(--dawn);border-radius:6px;padding:14px 16px;z-index:60;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+  <div style="font-size:0.88rem;margin-bottom:10px;">Llevás un buen rato en Génesis. Si querés, es un buen momento para hacer una pausa. 🌿</div>
+  <button id="dismissWellbeing" style="background:var(--solid);color:var(--on-grad);font-weight:600;padding:7px 16px;border-radius:20px;font-size:0.82rem;">Entendido</button>
+</div>
+
+<script>
+// ---------- conexión a Supabase (llamadas directas, sin librerías externas) ----------
+const SUPABASE_URL = 'https://kyfvsitunlzlkrivilzb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_W9utbTBPETPFKNTqSnkT6w_9epvzuhL';
+let accessToken = null;
+
+function restHeaders(extra = {}) {
+  return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${accessToken}`, ...extra };
+}
+async function sbSignUp(email, password){
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || data.error_description || data.error || 'No se pudo crear la cuenta.');
+  return data;
+}
+async function sbSignIn(email, password){
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || data.error_description || 'No se pudo iniciar sesión.');
+  return data;
+}
+async function dbSelect(table, query = ''){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, { headers: restHeaders() });
+  if (!res.ok) throw new Error('Error al leer ' + table);
+  return res.json();
+}
+async function dbInsert(table, body){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: restHeaders({ 'Prefer': 'return=representation' }), body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error((data && data.message) || 'Error al guardar en ' + table);
+  return data;
+}
+async function dbUpdate(table, query, body){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, {
+    method: 'PATCH', headers: restHeaders({ 'Prefer': 'return=representation' }), body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('Error al actualizar ' + table);
+  return res.json();
+}
+async function dbDelete(table, query){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, { method: 'DELETE', headers: restHeaders() });
+  if (!res.ok) throw new Error('Error al borrar en ' + table);
+}
+
+let mode = 'register';
+let currentUser = null;
+let people = [];
+let posts = [];
+let followingSet = new Set();
+let supportingSet = new Set();
+let feedMode = 'para-vos';
+
+// ---------- auth ----------
+const authTag = document.getElementById('authTag');
+const nameField = document.getElementById('nameField');
+const authSwitchText = document.getElementById('authSwitchText');
+const authSwitchBtn = document.getElementById('authSwitchBtn');
+const authSubmit = document.getElementById('authSubmit');
+
+authSwitchBtn.addEventListener('click', () => {
+  mode = mode === 'register' ? 'login' : 'register';
+  if (mode === 'login') {
+    authTag.textContent = 'Iniciá sesión para continuar.';
+    nameField.style.display = 'none';
+    document.getElementById('userField').style.display = 'none';
+    document.getElementById('creatorFields').style.display = 'none';
+    authSubmit.textContent = 'Iniciar sesión';
+    authSwitchText.textContent = '¿No tenés cuenta?';
+    authSwitchBtn.textContent = 'Creá una';
+  } else {
+    authTag.textContent = 'Creá tu cuenta para empezar.';
+    nameField.style.display = 'block';
+    document.getElementById('userField').style.display = 'block';
+    document.getElementById('creatorFields').style.display = 'block';
+    authSubmit.textContent = 'Crear cuenta';
+    authSwitchText.textContent = '¿Ya tenés cuenta?';
+    authSwitchBtn.textContent = 'Iniciá sesión';
+  }
+});
+
+authSubmit.addEventListener('click', async () => {
+  const email = document.getElementById('regEmail').value.trim();
+  const passVal = document.getElementById('regPass').value;
+  if (!email || !passVal) return;
+  const originalLabel = authSubmit.textContent;
+  authSubmit.disabled = true;
+  authSubmit.textContent = mode === 'register' ? 'Creando cuenta...' : 'Entrando...';
+  const errorEl = document.getElementById('authError');
+  errorEl.style.display = 'none';
+
+  try {
+    if (mode === 'register') {
+      const nameFieldVal = document.getElementById('regName').value.trim();
+      const userField = document.getElementById('regUser').value.trim();
+      const category = document.getElementById('regCategory').value;
+      const username = userField.startsWith('@') ? userField : '@' + userField;
+      const bio = 'Contando historias a través de mi contenido.';
+
+      const authData = await sbSignUp(email, passVal);
+      accessToken = authData.access_token;
+      if (!accessToken) throw new Error('La cuenta se creó pero no pudo iniciar sesión automáticamente. Probá iniciar sesión.');
+      const uid = authData.user.id;
+
+      await dbInsert('profiles', { auth_id: uid, name: nameFieldVal || username, username, category, bio, link: '' });
+      currentUser = { authId: uid, name: nameFieldVal || username, user: username, category, bio, link: '', hideLikes: false };
+    } else {
+      const authData = await sbSignIn(email, passVal);
+      accessToken = authData.access_token;
+      const uid = authData.user.id;
+      const profiles = await dbSelect('profiles', `?auth_id=eq.${uid}&select=*`);
+      if (!profiles.length) throw new Error('No se encontró tu perfil.');
+      const profile = profiles[0];
+      currentUser = { authId: uid, name: profile.name, user: profile.username, category: profile.category, bio: profile.bio, link: profile.link || '', hideLikes: !!profile.hide_likes, theme: profile.theme || null };
+    }
+    await startApp();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    errorEl.style.display = 'block';
+  }
+  authSubmit.disabled = false;
+  authSubmit.textContent = originalLabel;
+});
+
+function initials(name){
+  return name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+}
+function avatarClass(name){
+  const classes = ['', 'c2', 'c3'];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+  return classes[hash % classes.length];
+}
+
+let avatarMap = {};
+function avatarHtml(name, authId){
+  const url = avatarMap[authId];
+  return `<div class="avatar ${avatarClass(name)}">${url ? `<img src="${url}" alt="">` : initials(name)}</div>`;
+}
+async function loadAvatars(){
+  try {
+    const rows = await dbSelect('profiles', '?select=auth_id,avatar_url');
+    avatarMap = {};
+    (rows || []).forEach(r => { if (r.avatar_url) avatarMap[r.auth_id] = r.avatar_url; });
+  } catch (e) {}
+}
+function renderMyAvatars(){
+  const url = avatarMap[currentUser.authId];
+  ['whoAvatar', 'profileAvatar'].forEach(id => {
+    document.getElementById(id).innerHTML = url ? `<img src="${url}" alt="">` : initials(currentUser.name);
+  });
+}
+
+async function startApp(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('whoName').textContent = currentUser.name;
+  await loadAvatars();
+  renderMyAvatars();
+  if (currentUser.theme && THEMES[currentUser.theme]) applyTheme(currentUser.theme);
+  renderThemePicker();
+  document.getElementById('profileName').textContent = currentUser.name;
+  document.getElementById('profileUser').textContent = currentUser.user;
+  document.getElementById('profileCategory').textContent = currentUser.category;
+  document.getElementById('profileBio').textContent = currentUser.bio;
+  document.getElementById('profileLinkInput').value = currentUser.link;
+  document.getElementById('hideLikesToggle').checked = !!currentUser.hideLikes;
+  startWellbeingTimer();
+  await loadPosts();
+  await loadPeople();
+  await loadCommunities();
+  await loadSupporters();
+  await loadCreatorStats();
+  renderFeed();
+  renderPeople();
+  renderConversations();
+  renderCommunities();
+  refreshNotifBadge();
+  setInterval(refreshNotifBadge, 15000); // revisa notificaciones nuevas cada 15 segundos
+  renderProfile();
+}
+
+async function loadSupporters(){
+  try {
+    const rows = await dbSelect('supporters', `?supporter_id=eq.${currentUser.authId}&select=creator_id`);
+    supportingSet = new Set((rows || []).map(r => r.creator_id));
+  } catch (e) {
+    supportingSet = new Set();
+  }
+}
+
+async function loadCreatorStats(){
+  try {
+    const rows = await dbSelect('supporters', `?creator_id=eq.${currentUser.authId}&select=supporter_id`);
+    currentUser.supportersCount = (rows || []).length;
+  } catch (e) {
+    currentUser.supportersCount = 0;
+  }
+}
+
+async function supportCreator(authorId, authorName){
+  try {
+    await dbInsert('supporters', { creator_id: authorId, supporter_id: currentUser.authId });
+    supportingSet.add(authorId);
+    await notify(authorId, 'support');
+    renderFeed();
+  } catch (e) {
+    alert('No se pudo procesar: ' + e.message);
+  }
+}
+
+async function loadPosts(){
+  try {
+    const profilesData = await dbSelect('profiles', '?select=auth_id,name,hide_likes');
+    const nameMap = {};
+    const hideMap = {};
+    (profilesData || []).forEach(p => { nameMap[p.auth_id] = p.name; hideMap[p.auth_id] = !!p.hide_likes; });
+
+    const postsData = await dbSelect('posts', '?select=*&order=created_at.desc');
+    posts = (postsData || []).map(p => ({
+      id: p.id,
+      authorId: p.author_id,
+      authorName: nameMap[p.author_id] || 'Usuario',
+      hideLikes: !!hideMap[p.author_id],
+      isExclusive: !!p.is_exclusive,
+      createdAtMs: new Date(p.created_at).getTime(),
+      time: new Date(p.created_at).toLocaleString('es', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }),
+      text: p.text,
+      img: p.image_url,
+      liked: false,
+      likes: p.likes || 0,
+      mine: p.author_id === currentUser.authId,
+    }));
+  } catch (err) {
+    posts = [];
+  }
+}
+
+async function loadPeople(){
+  try {
+    const othersData = await dbSelect('profiles', `?auth_id=neq.${currentUser.authId}&select=auth_id,name,username,category,bio`);
+    const followsData = await dbSelect('follows', `?select=following_id&follower_id=eq.${currentUser.authId}`);
+    const followingIds = new Set((followsData || []).map(f => f.following_id));
+    followingSet = followingIds;
+
+    people = (othersData || []).map(p => ({
+      id: p.auth_id,
+      name: p.name,
+      user: p.username,
+      bio: p.category ? `${p.bio || ''} · ${p.category}` : (p.bio || ''),
+      following: followingIds.has(p.auth_id),
+    }));
+
+    const countRes = await fetch(`${SUPABASE_URL}/rest/v1/follows?select=follower_id&following_id=eq.${currentUser.authId}`, {
+      headers: restHeaders({ 'Prefer': 'count=exact' })
+    });
+    const range = countRes.headers.get('content-range');
+    currentUser.followers = range ? (parseInt(range.split('/')[1], 10) || 0) : 0;
+  } catch (err) {
+    people = [];
+    currentUser.followers = 0;
+  }
+}
+
+async function notify(userId, type, postId = null){
+  if (!userId || userId === currentUser.authId) return;
+  try {
+    await dbInsert('notifications', { user_id: userId, type, from_id: currentUser.authId, from_name: currentUser.name, post_id: postId, read: false });
+  } catch (e) { console.error('Error al crear notificación:', e); }
+}
+
+async function refreshNotifBadge(){
+  try {
+    const rows = await dbSelect('notifications', `?user_id=eq.${currentUser.authId}&read=eq.false&select=id`);
+    const count = (rows || []).length;
+    const badge = document.getElementById('notifBadge');
+    if (count > 0) { badge.textContent = count > 9 ? '9+' : count; badge.style.display = 'block'; }
+    else { badge.style.display = 'none'; }
+  } catch (e) { console.error('Error al leer notificaciones:', e); }
+}
+
+function notifText(n){
+  if (n.type === 'follow') return `<b>${n.from_name}</b> empezó a seguirte`;
+  if (n.type === 'like') return `<b>${n.from_name}</b> le dio me gusta a tu publicación`;
+  if (n.type === 'comment') return `<b>${n.from_name}</b> comentó tu publicación`;
+  if (n.type === 'support') return `<b>${n.from_name}</b> empezó a apoyarte`;
+  if (n.type === 'message') return `<b>${n.from_name}</b> te envió un mensaje`;
+  return 'Nueva notificación';
+}
+
+document.getElementById('notifBtn').addEventListener('click', async () => {
+  const panel = document.getElementById('notifPanel');
+  if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
+  panel.innerHTML = '<div class="empty">Cargando...</div>';
+  panel.style.display = 'block';
+  try {
+    const rows = await dbSelect('notifications', `?user_id=eq.${currentUser.authId}&select=*&order=created_at.desc`);
+    panel.innerHTML = (rows || []).length
+      ? rows.map(n => `<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:0.83rem;">${notifText(n)}</div>`).join('')
+      : '<div class="empty">No tenés notificaciones todavía.</div>';
+    await dbUpdate('notifications', `?user_id=eq.${currentUser.authId}&read=eq.false`, { read: true });
+    refreshNotifBadge();
+  } catch (e) {
+    panel.innerHTML = '<div class="empty">No se pudieron cargar las notificaciones.</div>';
+  }
+});
+
+// ---------- navegación ----------
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    if (btn.dataset.view === 'mensajes') {
+      document.getElementById('chatBox').style.display = 'none';
+      document.getElementById('conversationList').style.display = 'flex';
+    }
+    if (btn.dataset.view === 'comunidades') {
+      document.getElementById('communityDetail').style.display = 'none';
+      document.getElementById('communitiesListView').style.display = 'block';
+    }
+  });
+});
+
+// ---------- composer ----------
+const postText = document.getElementById('postText');
+const submitPost = document.getElementById('submitPost');
+const attachBtn = document.getElementById('attachBtn');
+const fileInput = document.getElementById('fileInput');
+const postPreview = document.getElementById('postPreview');
+let pendingImg = null;
+let pendingFile = null;
+let currentFilter = 'none';
+
+function refreshSubmitState(){
+  submitPost.disabled = !(postText.value.trim() || pendingImg);
+}
+postText.addEventListener('input', refreshSubmitState);
+
+attachBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  pendingFile = file;
+  currentFilter = 'none';
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    pendingImg = ev.target.result;
+    postPreview.src = pendingImg;
+    postPreview.style.filter = 'none';
+    postPreview.style.display = 'block';
+    document.getElementById('filterRow').style.display = 'flex';
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.toggle('following', b.dataset.filter === 'none'));
+    refreshSubmitState();
+  };
+  reader.readAsDataURL(file);
+});
+
+document.querySelectorAll('.filter-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFilter = btn.dataset.filter;
+    postPreview.style.filter = currentFilter;
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('following'));
+    btn.classList.add('following');
+  });
+});
+
+function loadImageFromFile(file){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function applyFilterToFile(file, filterCss){
+  if (filterCss === 'none') return file;
+  try {
+    const img = await loadImageFromFile(file);
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.filter = filterCss;
+    ctx.drawImage(img, 0, 0);
+    return await new Promise(resolve => canvas.toBlob(blob => resolve(blob || file), file.type || 'image/jpeg', 0.92));
+  } catch (e) {
+    return file;
+  }
+}
+
+submitPost.addEventListener('click', async () => {
+  const text = postText.value.trim();
+  if (!text && !pendingImg) return;
+  submitPost.disabled = true;
+  try {
+    let imageUrl = null;
+    if (pendingFile) {
+      const fileToUpload = await applyFilterToFile(pendingFile, currentFilter);
+      const safeName = pendingFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = `${currentUser.authId}/${Date.now()}_${safeName}`;
+      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/post-images/${path}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': pendingFile.type || 'application/octet-stream',
+        },
+        body: fileToUpload,
+      });
+      if (!uploadRes.ok) throw new Error('No se pudo subir la foto. Revisá que el bucket "post-images" exista y sea público.');
+      imageUrl = `${SUPABASE_URL}/storage/v1/object/public/post-images/${path}`;
+    }
+
+    const isExclusive = document.getElementById('exclusiveCheck').checked;
+    const inserted = await dbInsert('posts', { author_id: currentUser.authId, text, image_url: imageUrl, likes: 0, is_exclusive: isExclusive });
+    const row = inserted[0];
+    posts.unshift({
+      id: row.id,
+      authorId: currentUser.authId,
+      authorName: currentUser.name,
+      hideLikes: currentUser.hideLikes,
+      isExclusive,
+      createdAtMs: Date.now(),
+      time: 'ahora',
+      text,
+      img: imageUrl,
+      liked:false, likes:0, mine:true,
+    });
+    postText.value = '';
+    pendingImg = null;
+    pendingFile = null;
+    currentFilter = 'none';
+    document.getElementById('exclusiveCheck').checked = false;
+    postPreview.style.display = 'none';
+    postPreview.style.filter = 'none';
+    postPreview.src = '';
+    document.getElementById('filterRow').style.display = 'none';
+    refreshSubmitState();
+    renderFeed();
+    renderProfile();
+  } catch (err) {
+    alert('No se pudo publicar: ' + err.message);
+  }
+  submitPost.disabled = false;
+});
+
+// ---------- feed ----------
+let commentsCache = {};
+let openComments = new Set();
+
+function reasonFor(p){
+  if (p.mine) return 'Es tuya';
+  if (followingSet.has(p.authorId)) return `Seguís a ${p.authorName}`;
+  if ((p.likes || 0) >= 3) return 'Tiene mucha interacción';
+  return 'Publicación reciente en Génesis';
+}
+function scoreFor(p){
+  let score = 0;
+  if (followingSet.has(p.authorId)) score += 50;
+  score += (p.likes || 0) * 2;
+  const hours = (Date.now() - p.createdAtMs) / 3600000;
+  score += Math.max(0, 48 - hours);
+  return score;
+}
+
+function postCard(p){
+  return `
+    <div class="post" data-id="${p.id}">
+      <div class="post-head">
+        ${avatarHtml(p.authorName, p.authorId)}
+        <div>
+          <div class="name">${p.authorName}</div>
+          <div class="time">${p.time}</div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--paper-dim);margin:-4px 0 8px;">ⓘ Por qué lo ves: ${reasonFor(p)}</div>
+      ${(() => {
+        const locked = p.isExclusive && !p.mine && !supportingSet.has(p.authorId);
+        if (locked) {
+          return `<div style="background:var(--surface-2);border:1px dashed var(--line);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-size:0.85rem;margin-bottom:10px;">🔒 Contenido exclusivo de <b>${p.authorName}</b></div>
+            <button class="support-btn follow-btn" data-author="${p.authorId}" data-name="${escapeHtml(p.authorName)}">Apoyar a ${escapeHtml(p.authorName)}</button>
+          </div>`;
+        }
+        return `
+          ${p.text ? `<div class="post-body">${escapeHtml(p.text)}</div>` : ''}
+          ${p.img ? `<img class="post-img" src="${p.img}">` : ''}
+          ${p.isExclusive ? `<div style="font-size:0.7rem;color:var(--dawn);margin-top:6px;">🔒 Exclusivo</div>` : ''}
+        `;
+      })()}
+      <div class="post-actions">
+        <button class="like-btn ${p.liked ? 'liked' : ''}">${p.liked ? '♥' : '♡'}${p.hideLikes ? '' : ` <span>${p.likes}</span>`}</button>
+        <button class="comment-btn">💬 Comentar</button>
+        <button class="share-btn">↗ Compartir</button>
+      </div>
+      ${openComments.has(String(p.id)) ? `
+        <div class="comments-box" style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px;">
+          ${(commentsCache[String(p.id)] || []).map(c => `<div style="font-size:0.82rem;margin-bottom:6px;"><b>${c.authorName}</b> ${escapeHtml(c.text)}</div>`).join('') || '<div class="empty" style="padding:6px 0;">Sé el primero en comentar.</div>'}
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input type="text" class="comment-input" data-post="${p.id}" placeholder="Escribí un comentario...">
+            <button class="comment-send follow-btn" data-post="${p.id}">Enviar</button>
+          </div>
+        </div>
+      ` : ''}
+    </div>`;
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderFeed(){
+  const feed = document.getElementById('feed');
+  if (posts.length === 0){
+    feed.innerHTML = '<div class="empty">Todavía no hay publicaciones. Sé el primero.</div>';
+    return;
+  }
+  const ordered = feedMode === 'reciente'
+    ? [...posts].sort((a,b) => b.createdAtMs - a.createdAtMs)
+    : [...posts].sort((a,b) => scoreFor(b) - scoreFor(a));
+  feed.innerHTML = ordered.map(postCard).join('');
+  feed.querySelectorAll('.post').forEach(el => {
+    const id = el.dataset.id;
+    el.querySelector('.like-btn').addEventListener('click', () => toggleLike(id));
+    el.querySelector('.comment-btn').addEventListener('click', () => toggleComments(id));
+  });
+  feed.querySelectorAll('.comment-send').forEach(btn => {
+    btn.addEventListener('click', () => submitComment(btn.dataset.post));
+  });
+  feed.querySelectorAll('.support-btn').forEach(btn => {
+    btn.addEventListener('click', () => supportCreator(btn.dataset.author, btn.dataset.name));
+  });
+}
+
+document.getElementById('feedModeForYou').addEventListener('click', () => {
+  feedMode = 'para-vos';
+  document.getElementById('feedModeForYou').classList.add('following');
+  document.getElementById('feedModeRecent').classList.remove('following');
+  renderFeed();
+});
+document.getElementById('feedModeRecent').addEventListener('click', () => {
+  feedMode = 'reciente';
+  document.getElementById('feedModeRecent').classList.add('following');
+  document.getElementById('feedModeForYou').classList.remove('following');
+  renderFeed();
+});
+
+async function toggleLike(id){
+  const p = posts.find(x => x.id == id);
+  p.liked = !p.liked;
+  p.likes += p.liked ? 1 : -1;
+  renderFeed();
+  renderProfile();
+  try { await dbUpdate('posts', `?id=eq.${p.id}`, { likes: p.likes }); } catch (e) {}
+  if (p.liked) await notify(p.authorId, 'like', p.id);
+}
+
+async function toggleComments(id){
+  if (openComments.has(id)) {
+    openComments.delete(id);
+  } else {
+    openComments.add(id);
+    if (!commentsCache[id]) {
+      try {
+        const rows = await dbSelect('comments', `?post_id=eq.${id}&select=*&order=created_at.asc`);
+        const profilesData = await dbSelect('profiles', '?select=auth_id,name');
+        const nameMap = {};
+        (profilesData || []).forEach(p => { nameMap[p.auth_id] = p.name; });
+        commentsCache[id] = (rows || []).map(r => ({ authorName: nameMap[r.author_id] || 'Usuario', text: r.text }));
+      } catch (e) {
+        commentsCache[id] = [];
+      }
+    }
+  }
+  renderFeed();
+}
+
+async function submitComment(postId){
+  const input = document.querySelector(`.comment-input[data-post="${postId}"]`);
+  const text = input.value.trim();
+  if (!text) return;
+  try {
+    await dbInsert('comments', { post_id: postId, author_id: currentUser.authId, text });
+    commentsCache[postId] = commentsCache[postId] || [];
+    commentsCache[postId].push({ authorName: currentUser.name, text });
+    renderFeed();
+    const post = posts.find(p => p.id == postId);
+    if (post) await notify(post.authorId, 'comment', post.id);
+  } catch (e) {
+    alert('No se pudo comentar: ' + e.message);
+  }
+}
+
+// ---------- explorar / seguir ----------
+function renderPeople(){
+  const list = document.getElementById('peopleList');
+  if (people.length === 0){
+    list.innerHTML = '<div class="empty">Todavía no hay más creadores registrados. ¡Compartí Génesis para sumar más!</div>';
+    return;
+  }
+  list.innerHTML = people.map(p => `
+    <div class="person-row" data-id="${p.id}">
+      ${avatarHtml(p.name, p.id)}
+      <div class="info">
+        <div class="name">${p.name}</div>
+        <div class="bio">${p.bio} · ${p.user}</div>
+      </div>
+      <button class="follow-btn ${p.following ? 'following' : ''}">${p.following ? 'Siguiendo' : 'Seguir'}</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.person-row').forEach(el => {
+    const id = el.dataset.id;
+    el.querySelector('.follow-btn').addEventListener('click', async () => {
+      const person = people.find(x => x.id === id);
+      person.following = !person.following;
+      if (person.following) followingSet.add(id); else followingSet.delete(id);
+      renderPeople();
+      renderProfile();
+      renderFeed();
+      try {
+        if (person.following) {
+          await dbInsert('follows', { follower_id: currentUser.authId, following_id: id });
+          await notify(id, 'follow');
+        } else {
+          await dbDelete('follows', `?follower_id=eq.${currentUser.authId}&following_id=eq.${id}`);
+        }
+      } catch (e) {}
+    });
+  });
+}
+
+// ---------- mensajes ----------
+let currentChatWith = null;
+
+function renderConversations(){
+  const list = document.getElementById('conversationList');
+  if (people.length === 0) {
+    list.innerHTML = '<div class="empty">Todavía no hay otros creadores para escribir.</div>';
+    return;
+  }
+  list.innerHTML = people.map(p => `
+    <div class="person-row" data-id="${p.id}" data-name="${p.name}" style="cursor:pointer;">
+      ${avatarHtml(p.name, p.id)}
+      <div class="info">
+        <div class="name">${p.name}</div>
+        <div class="bio">${p.user}</div>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.person-row').forEach(el => {
+    el.addEventListener('click', () => openChat(el.dataset.id, el.dataset.name));
+  });
+}
+
+async function openChat(otherId, otherName){
+  currentChatWith = otherId;
+  document.getElementById('conversationList').style.display = 'none';
+  document.getElementById('chatBox').style.display = 'block';
+  document.getElementById('chatWithName').textContent = otherName;
+  await loadChatMessages();
+}
+
+async function loadChatMessages(){
+  const box = document.getElementById('chatMessages');
+  box.innerHTML = '<div class="empty">Cargando...</div>';
+  try {
+    const rows = await dbSelect('messages', `?or=(and(sender_id.eq.${currentUser.authId},receiver_id.eq.${currentChatWith}),and(sender_id.eq.${currentChatWith},receiver_id.eq.${currentUser.authId}))&select=*&order=created_at.asc`);
+    box.innerHTML = (rows || []).length
+      ? rows.map(m => `<div style="align-self:${m.sender_id === currentUser.authId ? 'flex-end' : 'flex-start'};max-width:75%;background:${m.sender_id === currentUser.authId ? 'var(--solid)' : 'var(--surface-2)'};color:${m.sender_id === currentUser.authId ? 'var(--on-grad)' : 'var(--paper)'};padding:8px 12px;border-radius:12px;font-size:0.88rem;">${escapeHtml(m.text)}</div>`).join('')
+      : '<div class="empty">Todavía no hay mensajes. ¡Escribí el primero!</div>';
+    box.scrollTop = box.scrollHeight;
+  } catch (e) {
+    box.innerHTML = '<div class="empty">No se pudieron cargar los mensajes.</div>';
+  }
+}
+
+document.getElementById('backToConversations').addEventListener('click', () => {
+  document.getElementById('chatBox').style.display = 'none';
+  document.getElementById('conversationList').style.display = 'flex';
+});
+
+document.getElementById('sendChatBtn').addEventListener('click', async () => {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !currentChatWith) return;
+  try {
+    await dbInsert('messages', { sender_id: currentUser.authId, receiver_id: currentChatWith, text });
+    await notify(currentChatWith, 'message');
+    input.value = '';
+    await loadChatMessages();
+  } catch (e) {
+    alert('No se pudo enviar: ' + e.message);
+  }
+});
+
+// ---------- comunidades ----------
+let communities = [];
+let currentCommunity = null;
+
+async function loadCommunities(){
+  try {
+    communities = await dbSelect('communities', '?select=*&order=created_at.desc') || [];
+  } catch (e) {
+    communities = [];
+  }
+}
+
+function renderCommunities(){
+  const list = document.getElementById('communitiesList');
+  if (communities.length === 0) {
+    list.innerHTML = '<div class="empty">Todavía no hay comunidades. ¡Creá la primera!</div>';
+    return;
+  }
+  list.innerHTML = communities.map(c => `
+    <div class="person-row" data-id="${c.id}" style="cursor:pointer;">
+      <div class="avatar ${avatarClass(c.name)}">${initials(c.name)}</div>
+      <div class="info">
+        <div class="name">${escapeHtml(c.name)}</div>
+        <div class="bio">${escapeHtml(c.description || '')}</div>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.person-row').forEach(el => {
+    el.addEventListener('click', () => openCommunity(el.dataset.id));
+  });
+}
+
+document.getElementById('createCommunityBtn').addEventListener('click', async () => {
+  const name = document.getElementById('newCommunityName').value.trim();
+  const description = document.getElementById('newCommunityDesc').value.trim();
+  if (!name) return;
+  try {
+    const inserted = await dbInsert('communities', { name, description, creator_id: currentUser.authId });
+    await dbInsert('community_members', { community_id: inserted[0].id, user_id: currentUser.authId });
+    document.getElementById('newCommunityName').value = '';
+    document.getElementById('newCommunityDesc').value = '';
+    await loadCommunities();
+    renderCommunities();
+  } catch (e) {
+    alert('No se pudo crear la comunidad: ' + e.message);
+  }
+});
+
+async function openCommunity(id){
+  currentCommunity = communities.find(c => c.id == id);
+  if (!currentCommunity) return;
+  document.getElementById('communitiesListView').style.display = 'none';
+  document.getElementById('communityDetail').style.display = 'block';
+  document.getElementById('communityDetailName').textContent = currentCommunity.name;
+  document.getElementById('communityDetailDesc').textContent = currentCommunity.description || '';
+  await refreshCommunityMembership();
+  await loadCommunityPosts();
+}
+
+async function refreshCommunityMembership(){
+  try {
+    const members = await dbSelect('community_members', `?community_id=eq.${currentCommunity.id}&select=user_id`);
+    const count = (members || []).length;
+    document.getElementById('communityMemberCount').textContent = `${count} miembro${count === 1 ? '' : 's'}`;
+    const isMember = (members || []).some(m => m.user_id === currentUser.authId);
+    const btn = document.getElementById('joinCommunityBtn');
+    btn.textContent = isMember ? 'Ya sos miembro' : 'Unirme';
+    btn.classList.toggle('following', isMember);
+  } catch (e) {}
+}
+
+document.getElementById('joinCommunityBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('joinCommunityBtn');
+  if (btn.classList.contains('following')) return;
+  try {
+    await dbInsert('community_members', { community_id: currentCommunity.id, user_id: currentUser.authId });
+    await refreshCommunityMembership();
+  } catch (e) {}
+});
+
+document.getElementById('backToCommunities').addEventListener('click', () => {
+  document.getElementById('communityDetail').style.display = 'none';
+  document.getElementById('communitiesListView').style.display = 'block';
+});
+
+async function loadCommunityPosts(){
+  const list = document.getElementById('communityPostsList');
+  list.innerHTML = '<div class="empty">Cargando...</div>';
+  try {
+    const rows = await dbSelect('community_posts', `?community_id=eq.${currentCommunity.id}&select=*&order=created_at.desc`);
+    const profilesData = await dbSelect('profiles', '?select=auth_id,name');
+    const nameMap = {};
+    (profilesData || []).forEach(p => { nameMap[p.auth_id] = p.name; });
+    list.innerHTML = (rows || []).length ? rows.map(r => `
+      <div class="post">
+        <div class="post-head">
+          ${avatarHtml(nameMap[r.author_id] || 'Usuario', r.author_id)}
+          <div>
+            <div class="name">${nameMap[r.author_id] || 'Usuario'}</div>
+            <div class="time">${new Date(r.created_at).toLocaleString('es', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</div>
+          </div>
+        </div>
+        <div class="post-body">${escapeHtml(r.text)}</div>
+      </div>
+    `).join('') : '<div class="empty">Todavía no hay publicaciones en esta comunidad.</div>';
+  } catch (e) {
+    list.innerHTML = '<div class="empty">No se pudieron cargar las publicaciones.</div>';
+  }
+}
+
+document.getElementById('submitCommunityPost').addEventListener('click', async () => {
+  const input = document.getElementById('communityPostText');
+  const text = input.value.trim();
+  if (!text || !currentCommunity) return;
+  try {
+    await dbInsert('community_posts', { community_id: currentCommunity.id, author_id: currentUser.authId, text });
+    input.value = '';
+    await loadCommunityPosts();
+  } catch (e) {
+    alert('No se pudo publicar: ' + e.message);
+  }
+});
+
+// ---------- paletas de color ----------
+const THEMES = {"mostaza": {"name": "Mostaza", "ink": "#0b1530", "surface": "#121f45", "surface2": "#1a2b5c", "line": "#2c4080", "paper": "#fff8e7", "paperDim": "#a9b6dd", "dawn": "#ffc93c", "dawnDim": "#e0a41f", "pink": "#ff9f43", "teal": "#5b8def", "danger": "#ff5d6c", "onGrad": "#1a1200", "glow": "#1b2d66", "navBg": "rgba(11,21,48,0.92)"}, "turquesa": {"name": "Turquesa", "ink": "#061a1f", "surface": "#0c2a31", "surface2": "#12404a", "line": "#1f5c68", "paper": "#eafcff", "paperDim": "#9cc7cf", "dawn": "#2ee6d0", "dawnDim": "#1cb8a5", "pink": "#6ee7b7", "teal": "#5ac8fa", "danger": "#ff6b7a", "onGrad": "#03231f", "glow": "#0f3a44", "navBg": "rgba(6,26,31,0.92)"}, "coral": {"name": "Coral", "ink": "#1c0b12", "surface": "#2b1420", "surface2": "#3d1e2e", "line": "#6b2f47", "paper": "#fff1ee", "paperDim": "#d8a9b5", "dawn": "#ff6f61", "dawnDim": "#d9483c", "pink": "#ffa07a", "teal": "#ffc46b", "danger": "#ff4d6d", "onGrad": "#2a0505", "glow": "#3a1526", "navBg": "rgba(28,11,18,0.92)"}, "violeta": {"name": "Violeta", "ink": "#120b2e", "surface": "#1c1445", "surface2": "#2a1f63", "line": "#43349a", "paper": "#f3f0ff", "paperDim": "#b5abe6", "dawn": "#a78bfa", "dawnDim": "#8367e8", "pink": "#f0abfc", "teal": "#7dd3fc", "danger": "#ff5d6c", "onGrad": "#140a3a", "glow": "#2b1f6b", "navBg": "rgba(18,11,46,0.92)"}, "verde": {"name": "Verde", "ink": "#08170f", "surface": "#0f2a1b", "surface2": "#17402a", "line": "#2a6b46", "paper": "#effff5", "paperDim": "#a3ccb3", "dawn": "#6ee7a0", "dawnDim": "#3fc27a", "pink": "#d9f99d", "teal": "#67e8f9", "danger": "#ff6b6b", "onGrad": "#052414", "glow": "#123d26", "navBg": "rgba(8,23,15,0.92)"}, "rosa": {"name": "Rosa", "ink": "#1f0a1a", "surface": "#301229", "surface2": "#451a3c", "line": "#7a2d69", "paper": "#fff0fa", "paperDim": "#e0a6cf", "dawn": "#ff7ac6", "dawnDim": "#e04da4", "pink": "#ffb3e6", "teal": "#b3a6ff", "danger": "#ff5d6c", "onGrad": "#2e0526", "glow": "#4a1a40", "navBg": "rgba(31,10,26,0.92)"}};
+
+const THEME_VARS = { ink:'--ink', surface:'--surface', surface2:'--surface-2', line:'--line', paper:'--paper', paperDim:'--paper-dim', dawn:'--dawn', dawnDim:'--dawn-dim', pink:'--pink', teal:'--teal', danger:'--danger', onGrad:'--on-grad', glow:'--glow', navBg:'--nav-bg' };
+let currentTheme = 'mostaza';
+
+function applyTheme(key){
+  const t = THEMES[key];
+  if (!t) return;
+  const root = document.documentElement;
+  Object.keys(THEME_VARS).forEach(k => root.style.setProperty(THEME_VARS[k], t[k]));
+  currentTheme = key;
+  try { localStorage.setItem('genesis_theme', key); } catch (e) {}
+}
+
+function renderThemePicker(){
+  const box = document.getElementById('themePicker');
+  if (!box) return;
+  box.innerHTML = Object.keys(THEMES).map(key => {
+    const t = THEMES[key];
+    const selected = key === currentTheme;
+    return `<button class="theme-swatch" data-theme="${key}" aria-label="Paleta ${t.name}" style="background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:${selected ? 'var(--paper)' : 'var(--paper-dim)'};font-size:0.72rem;font-weight:${selected ? 600 : 400};">
+      <span style="display:block;width:44px;height:44px;border-radius:50%;background:${t.dawn};border:5px solid ${t.ink};box-shadow:0 0 0 ${selected ? '3px var(--paper)' : '1px var(--line)'};"></span>
+      ${t.name}
+    </button>`;
+  }).join('');
+  box.querySelectorAll('.theme-swatch').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const key = btn.dataset.theme;
+      applyTheme(key);
+      renderThemePicker();
+      currentUser.theme = key;
+      try {
+        const rows = await dbUpdate('profiles', `?auth_id=eq.${currentUser.authId}`, { theme: key });
+        if (!rows || !rows.length) throw new Error('sin permiso');
+        showToast('Paleta guardada');
+      } catch (e) {
+        showToast('Se aplicó, pero no se pudo guardar en tu cuenta');
+      }
+    });
+  });
+}
+
+try { const saved = localStorage.getItem('genesis_theme'); if (saved && THEMES[saved]) applyTheme(saved); } catch (e) {}
+
+// ---------- compartir ----------
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--surface-2);color:var(--paper);border:1px solid var(--line);padding:10px 18px;border-radius:20px;font-size:0.85rem;z-index:80;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => { t.style.display = 'none'; }, 2200);
+}
+
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.share-btn');
+  if (!btn) return;
+  const el = btn.closest('.post');
+  const p = el && posts.find(x => x.id == el.dataset.id);
+  if (!p) return;
+  const locked = p.isExclusive && !p.mine && !supportingSet.has(p.authorId);
+  const preview = (p.text || '').slice(0, 100) + ((p.text || '').length > 100 ? '...' : '');
+  const text = locked
+    ? `Contenido exclusivo de ${p.authorName} en Génesis`
+    : (preview ? `${p.authorName} en Génesis: "${preview}"` : `${p.authorName} publicó en Génesis`);
+  const data = { title: 'Génesis', text };
+  data.url = 'https://checho0516.github.io/genesis/';
+  try {
+    if (navigator.share) { await navigator.share(data); return; }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+  }
+  try {
+    await navigator.clipboard.writeText(data.url ? `${text} ${data.url}` : text);
+    showToast('Copiado, listo para pegar');
+  } catch (err) {
+    showToast('No se pudo copiar');
+  }
+});
+
+// ---------- foto de perfil ----------
+async function squareImage(file, size){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const s = Math.min(img.width, img.height);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    canvas.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+    return await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.9));
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+document.getElementById('changePhotoBtn').addEventListener('click', () => document.getElementById('avatarInput').click());
+document.getElementById('profileAvatar').addEventListener('click', () => document.getElementById('avatarInput').click());
+document.getElementById('avatarInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const btn = document.getElementById('changePhotoBtn');
+  btn.disabled = true;
+  btn.textContent = 'Subiendo...';
+  try {
+    const blob = await squareImage(file, 400);
+    const path = `${currentUser.authId}/avatar_${Date.now()}.jpg`;
+    const up = await fetch(`${SUPABASE_URL}/storage/v1/object/post-images/${path}`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'image/jpeg' },
+      body: blob,
+    });
+    if (!up.ok) throw new Error('No se pudo subir la imagen.');
+    const url = `${SUPABASE_URL}/storage/v1/object/public/post-images/${path}`;
+    const rows = await dbUpdate('profiles', `?auth_id=eq.${currentUser.authId}`, { avatar_url: url });
+    if (!rows || !rows.length) throw new Error('Supabase no dejó guardar la foto en tu perfil (falta el permiso de actualizar perfiles).');
+    avatarMap[currentUser.authId] = url;
+    renderMyAvatars();
+    renderFeed();
+    renderProfile();
+    showToast('Foto actualizada');
+  } catch (err) {
+    alert('No se pudo cambiar la foto: ' + err.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '📷 Cambiar foto';
+});
+
+// ---------- perfil ----------
+document.getElementById('saveLinkBtn').addEventListener('click', async () => {
+  const newLink = document.getElementById('profileLinkInput').value.trim();
+  currentUser.link = newLink;
+  try { await dbUpdate('profiles', `?auth_id=eq.${currentUser.authId}`, { link: newLink }); } catch (e) {}
+});
+
+document.getElementById('hideLikesToggle').addEventListener('change', async (e) => {
+  currentUser.hideLikes = e.target.checked;
+  try { await dbUpdate('profiles', `?auth_id=eq.${currentUser.authId}`, { hide_likes: currentUser.hideLikes }); } catch (e) {}
+  renderFeed();
+  renderProfile();
+});
+
+// ---------- bienestar ----------
+let wellbeingTimeout = null;
+function startWellbeingTimer(){
+  if (wellbeingTimeout) clearTimeout(wellbeingTimeout);
+  wellbeingTimeout = setTimeout(() => {
+    document.getElementById('wellbeingBanner').style.display = 'block';
+  }, 20 * 60 * 1000);
+}
+document.getElementById('dismissWellbeing').addEventListener('click', () => {
+  document.getElementById('wellbeingBanner').style.display = 'none';
+  startWellbeingTimer();
+});
+
+function renderProfile(){
+  const mine = posts.filter(p => p.mine);
+  const totalLikes = mine.reduce((sum, p) => sum + p.likes, 0);
+  document.getElementById('statPosts').textContent = mine.length;
+  document.getElementById('statFollowers').textContent = currentUser.followers;
+  document.getElementById('statFollowing').textContent = people.filter(p => p.following).length;
+  document.getElementById('statLikes').textContent = totalLikes;
+  document.getElementById('statSupporters').textContent = currentUser.supportersCount || 0;
+
+  const topBox = document.getElementById('topPostBox');
+  const top = mine.length ? mine.reduce((a, b) => (b.likes > a.likes ? b : a)) : null;
+  if (top && top.likes > 0) {
+    topBox.style.display = 'block';
+    const preview = (top.text || '').slice(0, 80) + ((top.text || '').length > 80 ? '...' : '');
+    document.getElementById('topPostText').textContent = `"${preview}" — ${top.likes} me gusta`;
+  } else {
+    topBox.style.display = 'none';
+  }
+
+  const myPosts = document.getElementById('myPosts');
+  myPosts.innerHTML = mine.length
+    ? mine.map(postCard).join('')
+    : '<div class="empty">Publicá algo desde Inicio para armar tu portafolio.</div>';
+}
+</script>
+<script>
+if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !window.Capacitor) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "appId": "com.chechos_corp.genesis",
+  "appName": "Génesis",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
