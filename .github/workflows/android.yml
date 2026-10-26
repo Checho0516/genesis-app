@@ -29,6 +29,11 @@ jobs:
       - name: Crear el proyecto de Android
         run: npx cap add android
 
+      - name: Poner el ícono y la pantalla de inicio
+        run: |
+          npm install --no-save @capacitor/assets
+          npx @capacitor/assets generate --android
+
       - name: Sincronizar los archivos de la app
         run: npx cap sync android
 
